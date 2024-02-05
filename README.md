@@ -10,7 +10,7 @@ Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/.
 - [x] 4 Side Entrance
 - [x] 5 The Rewarder
 - [x] 6 Selfie
-- [ ] 7 Compromised
+- [x] 7 Compromised
 - [ ] 8 Puppet
 - [ ] 9 Puppet V2
 - [ ] 10 Free Rider
