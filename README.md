@@ -1,6 +1,6 @@
 # Damn Vulnerable Defi Solutions (Foundry)
 
-Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/.
+Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/. Foundry template - https://github.com/nicolasgarcia214/damn-vulnerable-defi-foundry.
 
 # Name
 
@@ -12,7 +12,7 @@ Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/.
 - [x] 6 Selfie
 - [x] 7 Compromised
 - [x] 8 Puppet
-- [ ] 9 Puppet V2
+- [x] 9 Puppet V2
 - [ ] 10 Free Rider
 - [ ] 11 Backdoor
 - [ ] 12 Climber
