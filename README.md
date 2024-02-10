@@ -13,7 +13,7 @@ Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/. Foun
 - [x] 7 Compromised
 - [x] 8 Puppet
 - [x] 9 Puppet V2
-- [ ] 10 Free Rider
+- [x] 10 Free Rider
 - [ ] 11 Backdoor
 - [ ] 12 Climber
 - [ ] 13 Wallet Mining
