@@ -132,6 +132,7 @@ contract PuppetFirst is Test {
     // Calculates how much ETH (in wei) Uniswap will pay for the given amount of tokens
     function calculateTokenToEthInputPrice(uint256 input_amount, uint256 input_reserve, uint256 output_reserve)
         internal
+        pure
         returns (uint256)
     {
         uint256 input_amount_with_fee = input_amount * 997;

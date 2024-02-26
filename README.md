@@ -95,3 +95,80 @@ We have rewarder contract that will distribute you some tokens every time you ma
    You got rewards for free, using just flashloan money.
 
 ![Scheme](./assets/5.%20The%20Rewarder.png)
+
+---
+
+### 6. Selfie
+
+### Context
+
+We have pool and governance contract that allows voters to schedule some actions on the pool. Also the pool gives flashloan of the governance token and there are no fees.
+
+### Hack
+
+Take the flashloan of the governance token and schedule a `drainAllFunds` function, then send all the tokens back. You can do this because you became the largest voter in the governance contract at the time of the flashloan.
+![Scheme](./assets/6.%20Selfie.png)
+
+---
+
+### 7. Compromised
+
+### Context
+
+There are 3 trusted reporters that can update the oracle price. There's strange Cloudflare response and it seems like it's encoded utf-8 in base64 format.
+
+### Hack
+
+these bytes are private keys of 2 of the source. in order to get them you need:
+
+1. convert bytes to utf-8:
+
+```
+4d 48 68 6a 4e 6a 63 34 5a 57 59 78 59 57 45 30 4e 54 5a 6b 59 54 59 31 59 7a 5a 6d 59 7a 55 34 4e 6a 46 6b 4e 44 51 34 4f 54 4a 6a 5a 47 5a 68 59 7a 42 6a 4e 6d 4d 34 59 7a 49 31 4e 6a 42 69 5a 6a 42 6a 4f 57 5a 69 59 32 52 68 5a 54 4a 6d 4e 44 63 7a 4e 57 45 35
+```
+
+for this one it would be:
+
+```
+MHhjNjc4ZWYxYWE0NTZkYTY1YzZmYzU4NjFkNDQ4OTJjZGZhYzBjNmM4YzI1NjBiZjBjOWZiY2RhZTJmNDczNWE5
+```
+
+this is base64 format
+
+2. convert base64 to utf-8: 0xc678ef1aa456da65c6fc5861d44892cdfac0c6c8c2560bf0c9fbcdae2f4735a9
+   this is a private key for this address: 0xe92401A4d3af5E446d93D11EEc806b1462b39D15
+
+repeat:
+
+`MHgyMDgyNDJjNDBhY2RmYTllZDg4OWU2ODVjMjM1NDdhY2JlZDliZWZjNjAzNzFlOTg3NWZiY2Q3MzYzNDBiYjQ4`
+
+0x208242c40acdfa9ed889e685c23547acbed9befc60371e9875fbcd736340bb48 - 0x81A5D6E50C214044bE44cA0CB057fe119097850c
+
+Now you have private keys of 2/3 reporters in the network, so you can manipulate the price, using their private keys:
+![Scheme](./assets/7.%20Compromised.png)
+
+---
+
+### 8. Puppet
+
+### Context
+
+We have Uniswap V1 pool with small amounts of tokens in it and therefore the pool is very volatile.
+
+### Hack
+
+Because TVL is small, we can manipulate the price of the tokens within it and make one asset worth much more than another.
+![Scheme](./assets/8.%20Puppet.png)
+
+---
+
+### 9. PuppetV2
+
+### Context
+
+The same as in PupperV1, but it uses UniswapV2 version.
+
+### Hack
+
+The same as in PuppetV1 works for PuppetV2, but the values are more limited.
+![Scheme](./assets/8.%20Puppet.png)
