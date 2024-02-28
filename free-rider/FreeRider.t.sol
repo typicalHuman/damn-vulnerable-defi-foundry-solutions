@@ -214,7 +214,7 @@ contract UniswapV2FlashSwap is IUniswapV2Callee, IERC721Receiver {
         freeRider = _freeRider;
         nft = _nft;
         buyer = _buyer;
-         pair = IUniswapV2Pair(factory.getPair(DVT, WETH));
+        pair = IUniswapV2Pair(factory.getPair(DVT, WETH));
     }
 
     function flashSwap(uint wethAmount) external {
@@ -228,14 +228,14 @@ contract UniswapV2FlashSwap is IUniswapV2Callee, IERC721Receiver {
     // This function is called by the DVT/WETH pair contract
     function uniswapV2Call(
         address sender,
-        uint amount0,
+        uint,
         uint amount1,
         bytes calldata data
     ) external {
         require(msg.sender == address(pair), "not pair");
         require(sender == address(this), "not sender");
 
-        (address tokenBorrow, address caller) = abi.decode(data, (address, address));
+        (, address caller) = abi.decode(data, (address, address));
 
         // Your custom code would go here. For example, code to arbitrage.
         weth.withdraw(amount1);
@@ -262,6 +262,7 @@ contract UniswapV2FlashSwap is IUniswapV2Callee, IERC721Receiver {
       function onERC721Received(address, address, uint256, bytes memory)
         external
         override
+        view
         returns (bytes4)
     {
         require(msg.sender == address(nft));

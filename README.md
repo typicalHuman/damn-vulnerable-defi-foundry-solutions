@@ -172,3 +172,17 @@ The same as in PupperV1, but it uses UniswapV2 version.
 
 The same as in PuppetV1 works for PuppetV2, but the values are more limited.
 ![Scheme](./assets/8.%20Puppet.png)
+
+---
+
+### 10. FreeRider
+
+### Context
+
+In the buy function of the marketplace contract, it first sends the NFT ownership and then the buy value to the owner.
+
+### Hack
+
+Because the order of operations is wrong, you are basically buying NFTs for free, because this purchase price will be repaid. So just do that until you have all the NFTs and pay back flashswap with the additional fee at the end.
+
+![Scheme](./assets/10.%20FreeRider.png)
