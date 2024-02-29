@@ -18,74 +18,101 @@ Just my solutions for these challenges https://www.damnvulnerabledefi.xyz/. Foun
 - [x] 12 Climber
 
 # Explanations
-## 1. Unstoppable
+
+## [1. Unstoppable](./unstoppable/)
+
 ### Context
+
 UnstoppableLender's function `flashLoan` checks balance via storage variable and comparing it to the actual balance of the contract using token's `balanceOf` function.
+
 ### Hack
+
 Simply send tokens so that the actual token balance of the contract is not equal to the value of the `poolBalance` variable.
 ![Scheme](./assets/1.%20Unstoppable.png)
 
 ---
 
-## 2. Naive receiver
+## [2. Naive receiver](./naive-receiver/)
+
 ### Context
+
 We have flashloan contract with the `FEE` of 1 ETH - `NaiveReceiverLanderPool`. And we have contract that could take flashloans from this contract and it should repay this huge fee after every flashloan - `FlashLoanReceiver`.
+
 ### Hack
+
 Call flashloan until `FlashLoanReceiver` isn't drained, because it has a balance of 10 ETH and the fee is 1 ETH - you should call it 10 times until the contract isn't drained.
 ![Scheme](./assets/2.%20Naive%20Receiver.png)
 
 ---
 
-## 3. Truster
+## [3. Truster](./truster/)
+
 ### Context
+
 We have flashloan contract that can execute any function name and parameters for the user of the contract. (It is much more convenient for the user to pass his own logic than to use an already prepared function that he has to implement, right?😉)
+
 ### Hack
+
 Just encode approve data of the DVT token to our attacker's address and drain all value from the contract.
 
 ![Scheme](./assets/3.%20Truster.png)
 
 ---
 
-## 4. Side Entrance
+## [4. Side Entrance](./side-entrance/)
+
 ### Context
+
 Flashloan checks repayment via `balanceOf` and also it has deposit/withdraw functionality, what could go wrong?
+
 ### Hack
+
 You should create custom contract for this one, the hack consists of these steps:
 
 1. call `flashloan` from the attack contract
 2. in `execute` flashloan payment handler (in the Attack contract) do a `deposit` of these funds
 3. `SideEntryLenderPool` will check the balance of the contract and everything would be fine as the balance would be the same as it was before the flashloan.
 4. call `withdraw` and get flashloaned funds back (and then send them to the attacker)
-![Scheme](./assets/4.%20Side%20Entrance.png)
+   ![Scheme](./assets/4.%20Side%20Entrance.png)
 
 ---
 
-## 5. The Rewarder
+## [5. The Rewarder](./the-rewarder/)
+
 ### Context
+
 We have rewarder contract that will distribute you some tokens every time you make a deposit to the contract.
+
 ### Hack
+
 1. Flashloan huge amount of tokens
 2. Receive the tokens
 3. Deposit tokens and receive rewards from this huge deposit
 4. Withdraw tokens back and repay flashloan.
    You got rewards for free, using just flashloan money.
-![Scheme](./assets/5.%20The%20Rewarder.png)
+   ![Scheme](./assets/5.%20The%20Rewarder.png)
 
 ---
 
-## 6. Selfie
+## [6. Selfie](./selfie/)
+
 ### Context
+
 We have pool and governance contract that allows voters to schedule some actions on the pool. Also the pool gives flashloan of the governance token and there are no fees.
 
 ### Hack
+
 Take the flashloan of the governance token and schedule a `drainAllFunds` function, then send all the tokens back. You can do this because you became the largest voter in the governance contract at the time of the flashloan.
 ![Scheme](./assets/6.%20Selfie.png)
 
 ---
 
-## 7. Compromised
+## [7. Compromised](./compromised/)
+
 ### Context
+
 There are 3 trusted reporters that can update the oracle price. There's strange Cloudflare response and it seems like it's encoded utf-8 in base64 format.
+
 ### Hack
 
 these bytes are private keys of 2 of the source. in order to get them you need:
@@ -118,47 +145,67 @@ Now you have private keys of 2/3 reporters in the network, so you can manipulate
 
 ---
 
-## 8. Puppet
+## [8. Puppet](./puppet/)
+
 ### Context
+
 We have Uniswap V1 pool with small amounts of tokens in it and therefore the pool is very volatile.
+
 ### Hack
+
 Because TVL is small, we can manipulate the price of the tokens within it and make one asset worth much more than another.
 ![Scheme](./assets/8.%20Puppet.png)
 
 ---
 
-## 9. PuppetV2
+## [9. PuppetV2](./puppet-v2/)
+
 ### Context
+
 The same as in PupperV1, but it uses UniswapV2 version.
+
 ### Hack
+
 The same as in PuppetV1 works for PuppetV2, but the values are more limited.
 ![Scheme](./assets/8.%20Puppet.png)
 
 ---
 
-## 10. FreeRider
+## [10. FreeRider](./free-rider/)
+
 ### Context
+
 In the buy function of the marketplace contract, it first sends the NFT ownership and then the buy value to the owner.
+
 ### Hack
+
 Because the order of operations is wrong, you are basically buying NFTs for free, because this purchase price will be repaid. So just do that until you have all the NFTs and pay back flashswap with the additional fee at the end.
 
 ![Scheme](./assets/10.%20FreeRider.png)
 
 ---
 
-## 11. Backdoor
+## [11. Backdoor](./backdoor/)
+
 ### Context
+
 We have a wallet registry that uses `GnosisSafeProxy` for additional security checks, but it doesn't check the fallback address and it doesn't check that the proxy caller is actually the owner of the proxy, so you could always remove the beneficiary by creating a custom proxy.
+
 ### Hack
+
 With custom proxy you can program logic so that the proxy will send tokens to you using DVT token address because there's no blacklist of addresses that can be called as fallback. Basically on step 4 of the hack you try to call the transfer function on the proxy it will call the DVT contract as fallback because it doesn't exist on the contract itself and the proxy will just send all the tokens to you.
 
 ![Scheme](./assets/11.%20Backdoor.png)
 
 ---
 
-## 12. Climber
+## [12. Climber](./climber/)
+
 ### Context
+
 You can make your contract a main proxy for a moment while executing `execute` function from `ClimberTimelock` contract.
+
 ### Hack
+
 Make delay 0 so that the operation doesn't take time to be counted as mature, then give the climber vault proxy a proposer role to schedule an operation. After that you have everything to make the drain, pass all the operations you did to the `sweepFunds` function to schedule it so that the `execute` function will finish without any errors. Now everything is executed and you have all the previous privileges of the original `ClimberVault` contract, so you can just drain the entire token balance to the attacker's address.
 ![Scheme](./assets/12.%20Climber.png)
