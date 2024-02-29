@@ -123,7 +123,6 @@ contract Backdoor is Test {
 
 
 contract Attack{
-
     function attack(address[] calldata users, GnosisSafeProxyFactory walletFactory, GnosisSafe masterCopy, DamnValuableToken dvt, WalletRegistry walletRegistry) external{
         for(uint256 i = 0; i < users.length; i++){
             address[] memory _users = new address[](1); 
