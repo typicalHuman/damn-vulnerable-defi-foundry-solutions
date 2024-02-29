@@ -36,7 +36,7 @@ Call flashloan until `FlashLoanReceiver` isn't drained, because it has a balance
 
 ---
 
-### 3. Truster
+## 3. Truster
 ### Context
 We have flashloan contract that can execute any function name and parameters for the user of the contract. (It is much more convenient for the user to pass his own logic than to use an already prepared function that he has to implement, right?😉)
 ### Hack
@@ -46,7 +46,7 @@ Just encode approve data of the DVT token to our attacker's address and drain al
 
 ---
 
-### 4. Side Entrance
+## 4. Side Entrance
 ### Context
 Flashloan checks repayment via `balanceOf` and also it has deposit/withdraw functionality, what could go wrong?
 ### Hack
@@ -60,7 +60,7 @@ You should create custom contract for this one, the hack consists of these steps
 
 ---
 
-### 5. The Rewarder
+## 5. The Rewarder
 ### Context
 We have rewarder contract that will distribute you some tokens every time you make a deposit to the contract.
 ### Hack
@@ -73,7 +73,7 @@ We have rewarder contract that will distribute you some tokens every time you ma
 
 ---
 
-### 6. Selfie
+## 6. Selfie
 ### Context
 We have pool and governance contract that allows voters to schedule some actions on the pool. Also the pool gives flashloan of the governance token and there are no fees.
 
@@ -83,7 +83,7 @@ Take the flashloan of the governance token and schedule a `drainAllFunds` functi
 
 ---
 
-### 7. Compromised
+## 7. Compromised
 ### Context
 There are 3 trusted reporters that can update the oracle price. There's strange Cloudflare response and it seems like it's encoded utf-8 in base64 format.
 ### Hack
@@ -118,7 +118,7 @@ Now you have private keys of 2/3 reporters in the network, so you can manipulate
 
 ---
 
-### 8. Puppet
+## 8. Puppet
 ### Context
 We have Uniswap V1 pool with small amounts of tokens in it and therefore the pool is very volatile.
 ### Hack
@@ -127,7 +127,7 @@ Because TVL is small, we can manipulate the price of the tokens within it and ma
 
 ---
 
-### 9. PuppetV2
+## 9. PuppetV2
 ### Context
 The same as in PupperV1, but it uses UniswapV2 version.
 ### Hack
@@ -136,7 +136,7 @@ The same as in PuppetV1 works for PuppetV2, but the values are more limited.
 
 ---
 
-### 10. FreeRider
+## 10. FreeRider
 ### Context
 In the buy function of the marketplace contract, it first sends the NFT ownership and then the buy value to the owner.
 ### Hack
@@ -146,7 +146,7 @@ Because the order of operations is wrong, you are basically buying NFTs for free
 
 ---
 
-### 11. Backdoor
+## 11. Backdoor
 ### Context
 We have a wallet registry that uses `GnosisSafeProxy` for additional security checks, but it doesn't check the fallback address and it doesn't check that the proxy caller is actually the owner of the proxy, so you could always remove the beneficiary by creating a custom proxy.
 ### Hack
@@ -156,7 +156,7 @@ With custom proxy you can program logic so that the proxy will send tokens to yo
 
 ---
 
-### 12. Climber
+## 12. Climber
 ### Context
 You can make your contract a main proxy for a moment while executing `execute` function from `ClimberTimelock` contract.
 ### Hack
